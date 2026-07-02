@@ -86,6 +86,31 @@ def test_spotify_id_from_href():
     assert reccobeats.spotify_id_from_href("https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8") == "4PTG3Z6ehGkBFwjybzWkR8"
 
 
+def test_get_playlist_parses_embed_page(monkeypatch):
+    import json
+
+    payload = {"props": {"pageProps": {"state": {"data": {"entity": {
+        "name": "Test Mix",
+        "trackList": [
+            {"uri": "spotify:track:abc123", "title": "Song A", "subtitle": "Artist One"},
+            {"uri": "spotify:episode:xyz", "title": "Podcast", "subtitle": "skip me"},
+            {"uri": "spotify:track:def456", "title": "Song B", "subtitle": "Artist Two"},
+        ],
+    }}}}}}
+
+    class FakeResponse:
+        text = f'<html><script id="__NEXT_DATA__" type="application/json">{json.dumps(payload)}</script></html>'
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr(spotify.requests, "get", lambda *a, **k: FakeResponse())
+    name, tracks = spotify.get_playlist("whatever")
+    assert name == "Test Mix"
+    assert [t["id"] for t in tracks] == ["abc123", "def456"]
+    assert tracks[0]["artist"] == "Artist One"
+
+
 def test_get_audio_features_maps_by_spotify_id(monkeypatch):
     class FakeResponse:
         def raise_for_status(self):

@@ -4,14 +4,13 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
 
-from . import analysis, auth, reccobeats, spotify
+from . import analysis, reccobeats, spotify
 
 PORT = 8899
 
 
 def analyze(playlist, threshold=0.20):
-    token = auth.user_token()
-    name, tracks = spotify.get_playlist(spotify.parse_playlist_id(playlist), token)
+    name, tracks = spotify.get_playlist(spotify.parse_playlist_id(playlist))
     features = reccobeats.get_audio_features([t["id"] for t in tracks])
     analyzed = [{**t, "f": features[t["id"]]} for t in tracks if t["id"] in features]
     if not analyzed:
@@ -61,6 +60,9 @@ class Handler(BaseHTTPRequestHandler):
         if self.path in ("/", "/index.html"):
             body = resources.files("vibecheck").joinpath("index.html").read_bytes()
             self._send(200, "text/html; charset=utf-8", body)
+        elif self.path == "/api/demo":
+            body = resources.files("vibecheck").joinpath("demo.json").read_bytes()
+            self._send(200, "application/json", body)
         else:
             self._send(404, "text/plain", b"not found")
 
