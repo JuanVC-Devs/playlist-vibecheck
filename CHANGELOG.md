@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/), versioning: [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0] - 2026-07-02
 
 ### Changed
 - No Spotify credentials of any kind needed anymore: playlist data is read from Spotify's public share page. Works for public playlists (first ~100 tracks); private playlists are not supported. The earlier OAuth `--login` flow and token caching were removed before any release.
