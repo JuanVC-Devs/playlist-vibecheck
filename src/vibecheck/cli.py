@@ -9,7 +9,7 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     p = argparse.ArgumentParser(prog="vibecheck", description="Key (tonality) + vibe-match analysis for public Spotify playlists.")
     p.add_argument("playlist", nargs="?", help="Spotify playlist URL or ID")
-    p.add_argument("--threshold", type=float, default=0.25, help="max vibe distance to count as matching (default: 0.25)")
+    p.add_argument("--threshold", type=float, default=0.20, help="max vibe distance to count as matching (default: 0.20)")
     p.add_argument("--login", action="store_true", help="log in with your Spotify account (required for dev-mode apps)")
     p.add_argument("--web", action="store_true", help="launch the local web UI instead of the terminal output")
     args = p.parse_args()

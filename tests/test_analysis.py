@@ -27,13 +27,29 @@ def test_relative_keys_share_camelot_number():
 
 def test_centroid_and_distance():
     fs = [
-        {"energy": 0.8, "valence": 0.6, "danceability": 0.7},
-        {"energy": 0.6, "valence": 0.8, "danceability": 0.5},
+        {"energy": 0.8, "valence": 0.6, "danceability": 0.7, "tempo": 120, "loudness": -6},
+        {"energy": 0.6, "valence": 0.8, "danceability": 0.5, "tempo": 120, "loudness": -6},
     ]
     c = analysis.centroid(fs)
-    assert c == {"energy": 0.7, "valence": 0.7, "danceability": 0.6}
-    assert analysis.vibe_distance(c, c) == 0
+    assert round(c["energy"], 6) == 0.7
+    assert round(c["valence"], 6) == 0.7
+    assert round(c["tempo_n"], 6) == 0.5
+    assert analysis.vibe_distance({"energy": 0.7, "valence": 0.7, "danceability": 0.6, "tempo": 120, "loudness": -6}, c) < 1e-9
     assert analysis.vibe_distance(fs[0], c) > 0
+
+
+def test_normalize_clamps_and_defaults():
+    n = analysis.normalize({"energy": 0.5, "valence": 0.5, "danceability": 0.5, "tempo": 300, "loudness": -60})
+    assert n["tempo_n"] == 1.0
+    assert n["loudness_n"] == 0.0
+    n = analysis.normalize({"energy": 0.5, "valence": 0.5, "danceability": 0.5})
+    assert 0 <= n["tempo_n"] <= 1 and 0 <= n["loudness_n"] <= 1
+
+
+def test_party_score_separates_anthems_from_ballads():
+    anthem = {"energy": 0.85, "valence": 0.6, "danceability": 0.75, "tempo": 128, "loudness": -5}
+    ballad = {"energy": 0.25, "valence": 0.2, "danceability": 0.4, "tempo": 80, "loudness": -12}
+    assert analysis.party_score(anthem) > analysis.party_score(ballad) + 0.2
 
 
 def test_vibe_labels():
@@ -41,6 +57,23 @@ def test_vibe_labels():
     assert analysis.vibe_label({"energy": 0.9, "valence": 0.2}) == "intense / dark energy"
     assert analysis.vibe_label({"energy": 0.2, "valence": 0.9}) == "chill / feel-good"
     assert analysis.vibe_label({"energy": 0.2, "valence": 0.2}) == "melancholic / moody"
+
+
+def test_deviation_reason():
+    base = {"energy": 0.8, "valence": 0.5, "danceability": 0.6, "tempo": 120, "loudness": -6}
+    center = analysis.centroid([base])
+    sad = dict(base, valence=0.1)
+    assert analysis.deviation_reason(sad, center) == "sadder than the playlist"
+    mellow = dict(base, energy=0.3)
+    assert analysis.deviation_reason(mellow, center) == "more mellow than the playlist"
+    slow = dict(base, tempo=65)
+    assert analysis.deviation_reason(slow, center) == "slower than the playlist"
+
+
+def test_dominant_camelot():
+    fs = [{"key": 0, "mode": 1}, {"key": 0, "mode": 1}, {"key": 9, "mode": 0}, {"key": None, "mode": 0}]
+    assert analysis.dominant_camelot(fs) == "8B"
+    assert analysis.dominant_camelot([{"key": None, "mode": 1}]) == "?"
 
 
 def test_parse_playlist_id():
