@@ -38,6 +38,15 @@ def vibe_distance(features, center):
     return (sum(w * (n[a] - center[a]) ** 2 for a, w in AXIS_WEIGHTS.items())) ** 0.5
 
 
+def spread(features_list):
+    ns = [normalize(f) for f in features_list]
+    out = {}
+    for a in ("energy", "valence", "danceability"):
+        mean = sum(n[a] for n in ns) / len(ns)
+        out[a] = round((sum((n[a] - mean) ** 2 for n in ns) / len(ns)) ** 0.5, 3)
+    return out
+
+
 def party_score(features):
     n = normalize(features)
     return sum(w * n[a] for a, w in AXIS_WEIGHTS.items())

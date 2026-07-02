@@ -4,7 +4,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
 
-from . import analysis, reccobeats, spotify
+from . import analysis, reccobeats, spotify, themes
 
 PORT = 8899
 
@@ -34,13 +34,18 @@ def analyze(playlist, threshold=0.20):
             "valence": f["valence"],
             "danceability": f["danceability"],
             "tempo": round(f["tempo"]) if f.get("tempo") else None,
+            "style": themes.classify_style(f),
             "party": round(analysis.party_score(f), 3),
             "dist": round(dist, 3),
             "match": match,
             "reason": None if match else analysis.deviation_reason(f, center),
         })
     matches = sum(t["match"] for t in out)
+    features_list = [t["f"] for t in analyzed]
     return {
+        "themes": themes.theme_scores(features_list),
+        "styles": themes.style_distribution(features_list),
+        "spread": analysis.spread(features_list),
         "playlist": name,
         "total": len(tracks),
         "analyzed": len(analyzed),

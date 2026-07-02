@@ -9,6 +9,8 @@
 
 Paste a playlist URL and get:
 
+- 🎯 **What is this playlist for?** — scored against 20 activity profiles (party & keeping it awake, going to bed, running late for a meeting, brewing coffee, gym, heartbreak…), each a target profile over energy, valence, danceability, tempo and loudness. You get a verdict ("Best for: 💪 Gym, 83% fit") and the limiting signal for every theme.
+- 🎸 **Estimated styles** — every track classified (dance, house, hip-hop, latin, rock, pop, soul, acoustic, ambient, dnb) from its audio signals, with the playlist's style distribution.
 - 🎹 **The key of every track** — musical notation (`C major`, `A minor`) *and* [Camelot wheel](https://mixedinkey.com/harmonic-mixing-guide/) codes (`8B`, `8A`) for harmonic mixing.
 - 🎯 **Vibe match** — which tracks belong and which ones break the playlist's vibe (and *why*: "sadder than the playlist", "slower", "less danceable").
 - 🗺️ **A vibe map** — every track plotted on a valence/energy chart with the outliers labeled, plus a real example track in each corner (party / chill / intense / moody).

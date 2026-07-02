@@ -65,6 +65,28 @@
   .meta-line { color: var(--muted); font-size: 14px; line-height: 1.9; }
 
   .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 14px; }
+  .hero { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: center; }
+  .hero-name { font-size: 30px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 6px; }
+  .hero-verdict { font-size: 17px; margin-bottom: 6px; }
+  .hero-verdict b { color: var(--green); }
+  .hero-sub { color: var(--muted); font-size: 13px; }
+  .hero-right { display: flex; gap: 28px; align-items: flex-start; }
+  .hero-stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; }
+  .theme-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .theme-name { width: 210px; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .theme-track { flex: 1; height: 9px; background: var(--line); border-radius: 5px; overflow: hidden; }
+  .theme-track i { display: block; height: 100%; border-radius: 5px; background: var(--grad); }
+  .theme-score { width: 40px; text-align: right; font-weight: 700; font-size: 13.5px; }
+  .theme-why { width: 220px; color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 920px) { .theme-why { display: none; } }
+  .sig-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; margin-bottom: 7px; }
+  .sig-name { width: 92px; color: var(--muted); }
+  .sig-track { flex: 1; height: 7px; background: var(--line); border-radius: 4px; position: relative; }
+  .sig-band { position: absolute; top: 0; height: 100%; background: #2f4d3a; border-radius: 4px; }
+  .sig-dot { position: absolute; top: -3px; width: 13px; height: 13px; border-radius: 50%; background: var(--green); border: 2px solid #0e1014; transform: translateX(-50%); }
+  .sig-val { width: 96px; text-align: right; color: var(--muted); }
+  .stylechip { display: inline-block; background: var(--card2); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; margin: 0 6px 6px 0; }
+  .stylechip b { color: var(--text); }
   .panel h2 { font-size: 14px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1.1px; margin-bottom: 12px; }
   .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
   @media (max-width: 920px) { .dash-row { grid-template-columns: 1fr; } }
@@ -125,38 +147,49 @@
   <div id="status"></div>
 
   <div id="results">
-    <div class="grid">
-      <div class="card">
-        <div class="label">Playlist vibe</div>
+    <div class="panel hero">
+      <div class="hero-left">
+        <div class="hero-name" id="pl-name"></div>
+        <div class="hero-verdict" id="pl-verdict"></div>
+        <div class="hero-sub" id="pl-sub"></div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-stat">
+          <div class="label">Vibe match</div>
+          <div class="ring-wrap">
+            <svg width="74" height="74" viewBox="0 0 86 86">
+              <circle cx="43" cy="43" r="36" fill="none" stroke="#262b33" stroke-width="9"/>
+              <circle id="ring" cx="43" cy="43" r="36" fill="none" stroke="#1db954" stroke-width="9"
+                      stroke-linecap="round" transform="rotate(-90 43 43)"/>
+            </svg>
+            <div>
+              <div class="ring-num" id="pct"></div>
+              <div class="ring-sub" id="pct-sub"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-stat">
+          <div class="label">Dominant key</div>
+          <div style="margin-top:8px"><span class="badge big" id="domkey"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-row">
+      <div class="panel">
+        <h2>🎯 What is this playlist for? — fit against 20 activity profiles</h2>
+        <div class="explain" style="margin-bottom:12px">Each activity is a target profile over energy, valence, danceability, tempo and loudness. Score = average Gaussian fit of every track to that profile (estimated style adjusts it slightly).</div>
+        <div id="themes"></div>
+        <div class="label" style="margin:16px 0 8px">Estimated styles (from audio signals)</div>
+        <div id="styles" class="quadlegend"></div>
+      </div>
+      <div class="panel">
+        <h2>📊 Vibe profile</h2>
         <div class="vibe-big" id="vibe"></div>
         <div class="explain" id="vibe-explain"></div>
         <div class="quadbar" id="quadbar"></div>
         <div class="quadlegend" id="quadlegend"></div>
-        <div class="axis-row"><span>energy</span><span id="v-en"></span></div>
-        <div class="bar"><i id="b-en"></i></div>
-        <div class="axis-row"><span>valence</span><span id="v-va"></span></div>
-        <div class="bar"><i id="b-va"></i></div>
-        <div class="axis-row"><span>danceability</span><span id="v-da"></span></div>
-        <div class="bar"><i id="b-da"></i></div>
-      </div>
-      <div class="card">
-        <div class="label">Vibe match</div>
-        <div class="ring-wrap">
-          <svg width="86" height="86" viewBox="0 0 86 86">
-            <circle cx="43" cy="43" r="36" fill="none" stroke="#262b33" stroke-width="9"/>
-            <circle id="ring" cx="43" cy="43" r="36" fill="none" stroke="#1db954" stroke-width="9"
-                    stroke-linecap="round" transform="rotate(-90 43 43)"/>
-          </svg>
-          <div>
-            <div class="ring-num" id="pct"></div>
-            <div class="ring-sub" id="pct-sub"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="label">Dominant key</div>
-        <div style="margin:6px 0 12px"><span class="badge big" id="domkey"></span></div>
-        <div class="meta-line" id="meta"></div>
+        <div id="signals"></div>
       </div>
     </div>
 
@@ -187,7 +220,7 @@
       </div>
       <div id="tab-songs" class="tablewrap">
         <table>
-          <thead><tr><th>#</th><th>Track</th><th>Key</th><th>Camelot</th><th>BPM</th><th>Party</th><th>Distance</th><th></th></tr></thead>
+          <thead><tr><th>#</th><th>Track</th><th>Key</th><th>Camelot</th><th>BPM</th><th>Style</th><th>Party</th><th>Distance</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -263,6 +296,35 @@ async function go() {
   }
 }
 
+// ---- Themes leaderboard + signals with spread ----
+function renderThemes(d) {
+  $('themes').innerHTML = d.themes.slice(0, 7).map(t => `
+    <div class="theme-row">
+      <div class="theme-name">${t.emoji} ${esc(t.name)}</div>
+      <div class="theme-track"><i style="width:${t.score}%"></i></div>
+      <div class="theme-score">${t.score}%</div>
+      <div class="theme-why">${esc(t.why)}</div>
+    </div>`).join('');
+  $('styles').innerHTML = d.styles.map(s =>
+    `<span class="stylechip"><b>${s.pct}%</b> ${esc(s.style)}</span>`).join('');
+}
+
+function renderSignals(d) {
+  const rows = [['energy', 'energy'], ['valence', 'valence'], ['danceability', 'danceability']];
+  $('signals').innerHTML = rows.map(([ax, name]) => {
+    const mean = d.center[ax], sd = (d.spread || {})[ax] ?? 0;
+    const lo = Math.max(0, mean - sd) * 100, hi = Math.min(1, mean + sd) * 100;
+    return `<div class="sig-row">
+      <div class="sig-name">${name}</div>
+      <div class="sig-track">
+        <span class="sig-band" style="left:${lo}%;width:${hi - lo}%"></span>
+        <span class="sig-dot" style="left:${mean * 100}%"></span>
+      </div>
+      <div class="sig-val">${mean.toFixed(2)} ± ${sd.toFixed(2)}</div>
+    </div>`;
+  }).join('') + `<div class="explain" style="margin-top:8px">dot = playlist mean · shaded band = ±1σ (how consistent the playlist is on that signal)</div>`;
+}
+
 // ---- Vibe label explanation ----
 const QUAD_COLORS = {party: '#1db954', chill: '#4dd0e1', intense: '#b388ff', moody: '#5b6270'};
 const QUAD_EMOJI = {party: '🎉', chill: '🌴', intense: '⚡', moody: '🌙'};
@@ -297,20 +359,26 @@ function renderVibeExplain(d) {
 function render(d) {
   DATA = d;
   $('results').style.display = 'block';
+
+  // hero: name + verdict + key stats, the first thing you read
+  $('pl-name').textContent = d.playlist;
+  const top = d.themes[0], runners = d.themes.slice(1, 3);
+  $('pl-verdict').innerHTML = `Best for: <b>${top.emoji} ${esc(top.name)}</b> (${top.score}% fit)`
+    + (runners.length ? ` <span style="color:var(--muted)">· also fits ${runners.map(t => `${t.emoji} ${esc(t.name.toLowerCase())} ${t.score}%`).join(', ')}</span>` : '');
+  $('pl-sub').textContent = `${d.total} tracks · ${d.analyzed} analyzed · threshold ${d.threshold}`;
+
   $('vibe').textContent = ({'euphoric / party':'🎉 euphoric / party','intense / dark energy':'⚡ intense / dark','chill / feel-good':'🌴 chill / feel-good','melancholic / moody':'🌙 melancholic / moody'})[d.vibe] || d.vibe;
   renderVibeExplain(d);
-  for (const [ax, k] of [['energy','en'],['valence','va'],['danceability','da']]) {
-    $('v-' + k).textContent = d.center[ax].toFixed(2);
-    $('b-' + k).style.width = (d.center[ax] * 100) + '%';
-  }
+  renderSignals(d);
+  renderThemes(d);
+
   const C = 2 * Math.PI * 36;
   $('ring').setAttribute('stroke-dasharray', `${C * d.match_pct / 100} ${C}`);
   $('ring').setAttribute('stroke', d.match_pct >= 70 ? '#1db954' : d.match_pct >= 40 ? '#e8c547' : '#ff5c8a');
   $('pct').textContent = d.match_pct + '%';
-  $('pct-sub').textContent = `${d.matches}/${d.analyzed} match the vibe`;
+  $('pct-sub').textContent = `${d.matches}/${d.analyzed} match`;
   $('domkey').textContent = d.dominant_camelot;
   $('domkey').style.background = camelotColor(d.dominant_camelot);
-  $('meta').innerHTML = `<b>${esc(d.playlist)}</b><br>${d.total} tracks · ${d.analyzed} analyzed<br>threshold ${d.threshold}`;
   drawChart(d);
   $('rows').innerHTML = d.tracks.map((t, i) => `
     <tr>
@@ -319,6 +387,7 @@ function render(d) {
       <td>${esc(t.key)}</td>
       <td><span class="badge" style="background:${camelotColor(t.camelot)}">${esc(t.camelot)}</span></td>
       <td class="num">${t.tempo ?? '–'}</td>
+      <td class="num">${esc(t.style || '–')}</td>
       <td><span class="partybar"><i style="width:${t.party * 100}%"></i></span><span class="num">${t.party.toFixed(2)}</span></td>
       <td><span class="distbar"><i style="width:${Math.min(100, t.dist * 250)}%;background:${t.match ? 'var(--green)' : 'var(--pink)'}"></i></span><span class="num">${t.dist.toFixed(2)}</span></td>
       <td>${t.match ? '<span class="ok-dot">✓</span>' : `<span class="note">✗ ${esc(t.reason)}</span>`}</td>

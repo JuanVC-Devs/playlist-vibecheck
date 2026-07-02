@@ -1,4 +1,4 @@
-from vibecheck import analysis, reccobeats, spotify
+from vibecheck import analysis, reccobeats, spotify, themes
 
 
 def test_key_names():
@@ -84,6 +84,48 @@ def test_parse_playlist_id():
 
 def test_spotify_id_from_href():
     assert reccobeats.spotify_id_from_href("https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8") == "4PTG3Z6ehGkBFwjybzWkR8"
+
+
+SLEEPY = {"energy": 0.12, "valence": 0.30, "danceability": 0.28, "tempo": 70, "loudness": -15,
+          "acousticness": 0.8, "instrumentalness": 0.1, "speechiness": 0.03}
+BANGER = {"energy": 0.88, "valence": 0.70, "danceability": 0.82, "tempo": 126, "loudness": -4,
+          "acousticness": 0.05, "instrumentalness": 0.02, "speechiness": 0.06}
+RAP = {"energy": 0.70, "valence": 0.50, "danceability": 0.75, "tempo": 140, "loudness": -6,
+       "acousticness": 0.1, "instrumentalness": 0.0, "speechiness": 0.25}
+
+
+def test_classify_style():
+    assert themes.classify_style(SLEEPY) == "acoustic"
+    assert themes.classify_style(BANGER) == "dance"
+    assert themes.classify_style(RAP) == "hiphop"
+
+
+def test_theme_scores_rank_sensibly():
+    sleepy_scores = {t["name"]: t["score"] for t in themes.theme_scores([SLEEPY] * 5)}
+    party_scores = {t["name"]: t["score"] for t in themes.theme_scores([BANGER] * 5)}
+    assert sleepy_scores["Going to bed"] > sleepy_scores["Party & keeping it awake"]
+    assert party_scores["Party & keeping it awake"] > party_scores["Going to bed"]
+    assert party_scores["Party & keeping it awake"] > 50
+
+
+def test_theme_scores_sorted_and_complete():
+    scores = themes.theme_scores([BANGER, SLEEPY])
+    assert len(scores) == len(themes.THEMES)
+    assert all(scores[i]["score"] >= scores[i + 1]["score"] for i in range(len(scores) - 1))
+    assert all("why" in s and "emoji" in s for s in scores)
+
+
+def test_style_distribution():
+    dist = themes.style_distribution([BANGER, BANGER, SLEEPY, RAP])
+    assert dist[0]["style"] == "dance" and dist[0]["pct"] == 50
+
+
+def test_spread():
+    fs = [{"energy": 0.2, "valence": 0.5, "danceability": 0.5, "tempo": 100, "loudness": -8},
+          {"energy": 0.8, "valence": 0.5, "danceability": 0.5, "tempo": 100, "loudness": -8}]
+    sp = analysis.spread(fs)
+    assert sp["energy"] == 0.3
+    assert sp["valence"] == 0.0
 
 
 def test_get_playlist_parses_embed_page(monkeypatch):
