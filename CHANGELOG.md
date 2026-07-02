@@ -8,6 +8,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - **Activity themes**: the playlist is scored against 20 activity profiles (going to bed, party & keeping it awake, running late for a meeting, brewing coffee, gym, heartbreak…). Each theme is a target profile over energy/valence/danceability/tempo/loudness; the score is the average Gaussian fit of every track, with a one-line explanation of the limiting signal.
 - **Estimated style analysis**: each track gets a style (dance, house, hiphop, latin, rock, pop, soul, acoustic, ambient, dnb) inferred from audio signals (ReccoBeats exposes no genre metadata), shown per track and as a playlist distribution; styles nudge theme scores.
 - **Redesigned dashboard around the customer journey**: hero header with playlist name, "Best for" verdict, vibe match ring and dominant key at a glance; theme leaderboard; vibe profile with mean ± σ per signal instead of bare averages.
+- **Momentum arc**: the pace panel moved to the top row and gained standard DJ set shapes — full party arc, warm-up (opening set), main party (peak time), chill down (closing set), ups & downs, steady climb, smooth flow. Reorders live on selection; shapes map position to party-score percentile.
 
 ## [0.1.0] - 2026-07-02
 

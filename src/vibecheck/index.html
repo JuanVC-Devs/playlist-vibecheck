@@ -177,11 +177,21 @@
 
     <div class="dash-row">
       <div class="panel">
-        <h2>🎯 What is this playlist for? — fit against 20 activity profiles</h2>
-        <div class="explain" style="margin-bottom:12px">Each activity is a target profile over energy, valence, danceability, tempo and loudness. Score = average Gaussian fit of every track to that profile (estimated style adjusts it slightly).</div>
-        <div id="themes"></div>
-        <div class="label" style="margin:16px 0 8px">Estimated styles (from audio signals)</div>
-        <div id="styles" class="quadlegend"></div>
+        <h2>🎢 Momentum arc — current pace vs. proposed arc</h2>
+        <div class="controls" style="margin-bottom:6px">
+          <select id="arc">
+            <option value="arc">🎢 Full party arc (warm-up → peak → cooldown)</option>
+            <option value="warmup">🔥 Warm-up (opening set)</option>
+            <option value="main">🎉 Main party (peak time)</option>
+            <option value="chill">🧊 Chill down (closing set)</option>
+            <option value="waves">🌊 Ups & downs (builds and breakdowns)</option>
+            <option value="ramp">📈 Steady climb</option>
+            <option value="smooth">✨ Smooth flow (minimal transitions)</option>
+          </select>
+          <button id="order">Reorder</button>
+        </div>
+        <div class="legend"><b style="color:#5b6270">grey: current pace</b> · <b style="color:#1db954">green: proposed arc</b> · full track order in the <b>Set order</b> tab below</div>
+        <svg id="curve" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
       <div class="panel">
         <h2>📊 Vibe profile</h2>
@@ -199,17 +209,11 @@
         <svg id="chart" viewBox="0 0 640 460" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
       <div class="panel">
-        <h2>🎚 Current pace vs. possible pace (Set Mode)</h2>
-        <div class="controls" style="margin-bottom:6px">
-          <select id="arc">
-            <option value="arc">🎢 Party arc</option>
-            <option value="ramp">📈 Ramp</option>
-            <option value="smooth">🌊 Smooth flow</option>
-          </select>
-          <button id="order">Reorder</button>
-        </div>
-        <div class="legend"><b style="color:#5b6270">grey: current pace</b> · <b style="color:#1db954">green: proposed pace</b></div>
-        <svg id="curve" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg"></svg>
+        <h2>🎯 What is this playlist for? — fit against 20 activity profiles</h2>
+        <div class="explain" style="margin-bottom:12px">Each activity is a target profile over energy, valence, danceability, tempo and loudness. Score = average Gaussian fit of every track to that profile (estimated style adjusts it slightly).</div>
+        <div id="themes"></div>
+        <div class="label" style="margin:16px 0 8px">Estimated styles (from audio signals)</div>
+        <div id="styles" class="quadlegend"></div>
       </div>
     </div>
 
@@ -395,8 +399,28 @@ function render(d) {
   renderSet(orderTracks(d.tracks, $('arc').value));
 }
 
-// ---- Set Mode ----
+// ---- Momentum arc / Set Mode ----
 $('order').onclick = () => { if (DATA) renderSet(orderTracks(DATA.tracks, $('arc').value)); };
+$('arc').onchange = () => { if (DATA) renderSet(orderTracks(DATA.tracks, $('arc').value)); };
+
+// Standard DJ set shapes: position (0..1) -> target party-score percentile (0..1)
+const ARC_SHAPES = {
+  arc: t => t < 0.75 ? 0.1 + 0.9 * (t / 0.75) : 1 - 0.75 * ((t - 0.75) / 0.25),  // warm-up -> peak -> cooldown
+  warmup: t => 0.12 + 0.62 * t + 0.09 * Math.sin(t * Math.PI * 3),                // steady build with breathers, no full peak
+  main: t => t < 0.15 ? 0.55 + 0.35 * (t / 0.15) : 0.9 + 0.1 * Math.sin(t * 9),   // get high fast, hold with small waves
+  chill: t => 0.9 - 0.85 * t,                                                     // start high, land calm
+  waves: t => 0.5 + 0.48 * Math.sin(t * Math.PI * 4 - Math.PI / 2),               // two full build/breakdown cycles
+  ramp: t => t,
+};
+
+function shapeOrder(tracks, shapeFn) {
+  const n = tracks.length;
+  const byParty = [...tracks].sort((a, b) => a.party - b.party);
+  const targets = Array.from({length: n}, (_, i) => ({i, v: shapeFn(n <= 1 ? 0 : i / (n - 1))}));
+  const out = new Array(n);
+  [...targets].sort((a, b) => a.v - b.v).forEach((t, rank) => { out[t.i] = byParty[rank]; });
+  return out;
+}
 
 function camPenalty(a, b) {
   if (!a || !b || a === '?' || b === '?') return 0.1;
@@ -417,13 +441,9 @@ function transCost(a, b) {
 }
 
 function orderTracks(tracks, arc) {
-  const byParty = [...tracks].sort((a, b) => a.party - b.party);
-  if (arc === 'ramp') return byParty;
-  if (arc === 'arc') {
-    const n = byParty.length, k = Math.max(1, Math.round(n * 0.25));
-    return byParty.slice(0, n - k).concat(byParty.slice(n - k).reverse());
-  }
+  if (ARC_SHAPES[arc]) return shapeOrder(tracks, ARC_SHAPES[arc]);
   // smooth: greedy nearest-neighbor starting from the least party track
+  const byParty = [...tracks].sort((a, b) => a.party - b.party);
   const rest = byParty.slice(1), out = [byParty[0]];
   while (rest.length) {
     const cur = out[out.length - 1];
