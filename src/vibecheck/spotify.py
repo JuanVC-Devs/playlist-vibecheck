@@ -30,21 +30,39 @@ def get_token():
 
 def get_playlist(playlist_id, token):
     headers = {"Authorization": f"Bearer {token}"}
-    r = requests.get(f"{API}/playlists/{playlist_id}", params={"fields": "name"}, headers=headers, timeout=15)
+    r = requests.get(f"{API}/playlists/{playlist_id}", headers=headers, timeout=15)
     r.raise_for_status()
-    name = r.json()["name"]
+    data = r.json()
+
+    # classic apps get the track list under "tracks"; post-2024 dev-mode apps get it
+    # under "items" (and only with a user token), with each entry as "item" not "track"
+    paging = _paging_object(data)
+    if not isinstance(paging, dict) or "items" not in paging:
+        raise SystemExit("Spotify hides playlist tracks from app-only credentials. Re-run with --login to authorize with your Spotify account.")
 
     tracks = []
-    url = f"{API}/playlists/{playlist_id}/tracks"
-    params = {"fields": "items(track(id,name,artists(name))),next", "limit": 100}
-    while url:
-        r = requests.get(url, params=params, headers=headers, timeout=15)
+    while True:
+        for entry in paging["items"]:
+            t = entry.get("track") or entry.get("item")
+            if t and t.get("id") and t.get("name"):
+                tracks.append({"id": t["id"], "name": t["name"], "artist": ", ".join(a["name"] for a in t.get("artists", []))})
+        url = paging.get("next")
+        if not url:
+            break
+        r = requests.get(url, headers=headers, timeout=15)
+        if r.status_code == 403:
+            print(f"(Spotify blocks paging beyond the first {len(tracks)} tracks for this app)")
+            break
         r.raise_for_status()
-        data = r.json()
-        for item in data["items"]:
-            t = item.get("track")
-            if t and t.get("id"):
-                tracks.append({"id": t["id"], "name": t["name"], "artist": ", ".join(a["name"] for a in t["artists"])})
-        url = data.get("next")
-        params = None
-    return name, tracks
+        paging = _paging_object(r.json())
+    return data["name"], tracks
+
+
+def _paging_object(data):
+    # a paging object is a dict whose "items" is the list of entries; it may be the
+    # response itself or nested under "tracks" (classic) or "items" (new dev-mode apps)
+    for key in ("tracks", "items"):
+        nested = data.get(key)
+        if isinstance(nested, dict) and isinstance(nested.get("items"), list):
+            return nested
+    return data
