@@ -6,11 +6,11 @@ import math
 DEFAULT_TOL = {"energy": 0.18, "valence": 0.22, "danceability": 0.18, "tempo": 18, "loudness": 4}
 
 THEMES = [
-    {"name": "Going to bed", "emoji": "😴", "target": {"energy": 0.13, "valence": 0.35, "danceability": 0.30, "tempo": 72, "loudness": -14}, "styles": ["acoustic", "ambient", "soul"], "anti": ["dance", "house", "dnb", "rage"]},
+    {"name": "Going to bed", "emoji": "😴", "target": {"energy": 0.13, "valence": 0.35, "danceability": 0.30, "tempo": 72, "loudness": -14}, "styles": ["acoustic", "ambient", "lofi", "soul"], "anti": ["dance", "house", "dnb"]},
     {"name": "Yoga / meditation", "emoji": "🧘", "target": {"energy": 0.12, "valence": 0.45, "danceability": 0.25, "tempo": 68, "loudness": -16}, "styles": ["ambient", "acoustic"], "anti": ["dance", "hiphop", "rock"]},
-    {"name": "Deep focus / study", "emoji": "📚", "target": {"energy": 0.25, "valence": 0.40, "danceability": 0.35, "tempo": 95, "loudness": -13}, "styles": ["ambient", "acoustic"], "anti": ["hiphop", "dance"]},
-    {"name": "Brewing coffee", "emoji": "☕", "target": {"energy": 0.35, "valence": 0.62, "danceability": 0.50, "tempo": 98, "loudness": -11}, "styles": ["acoustic", "soul", "pop"], "anti": ["dnb", "rage"]},
-    {"name": "Sunday morning chill", "emoji": "🌅", "target": {"energy": 0.32, "valence": 0.68, "danceability": 0.48, "tempo": 92, "loudness": -11}, "styles": ["acoustic", "pop", "soul"], "anti": ["dnb", "house"]},
+    {"name": "Deep focus / study", "emoji": "📚", "target": {"energy": 0.25, "valence": 0.40, "danceability": 0.35, "tempo": 95, "loudness": -13}, "styles": ["lofi", "ambient", "acoustic"], "anti": ["hiphop", "dance"]},
+    {"name": "Brewing coffee", "emoji": "☕", "target": {"energy": 0.35, "valence": 0.62, "danceability": 0.50, "tempo": 98, "loudness": -11}, "styles": ["lofi", "acoustic", "soul", "pop"], "anti": ["dnb"]},
+    {"name": "Sunday morning chill", "emoji": "🌅", "target": {"energy": 0.32, "valence": 0.68, "danceability": 0.48, "tempo": 92, "loudness": -11}, "styles": ["lofi", "acoustic", "pop", "soul"], "anti": ["dnb", "house"]},
     {"name": "Heartbreak", "emoji": "💔", "target": {"energy": 0.28, "valence": 0.15, "danceability": 0.35, "tempo": 82, "loudness": -10}, "styles": ["acoustic", "soul"], "anti": ["dance", "latin"]},
     {"name": "Dinner party", "emoji": "🍷", "target": {"energy": 0.42, "valence": 0.60, "danceability": 0.55, "tempo": 105, "loudness": -10}, "styles": ["soul", "pop", "latin"], "anti": ["dnb", "rage"]},
     {"name": "Date night", "emoji": "❤️", "target": {"energy": 0.42, "valence": 0.55, "danceability": 0.55, "tempo": 100, "loudness": -10}, "styles": ["soul", "pop"], "anti": ["dnb", "rage"]},
@@ -19,11 +19,11 @@ THEMES = [
     {"name": "Road trip", "emoji": "🚗", "target": {"energy": 0.65, "valence": 0.70, "danceability": 0.60, "tempo": 122, "loudness": -7}, "styles": ["rock", "pop"], "anti": ["ambient"]},
     {"name": "Cleaning the house", "emoji": "🧹", "target": {"energy": 0.70, "valence": 0.75, "danceability": 0.75, "tempo": 118, "loudness": -6}, "styles": ["pop", "dance", "latin"], "anti": ["ambient", "acoustic"]},
     {"name": "Pre-party warm-up", "emoji": "🍸", "target": {"energy": 0.68, "valence": 0.65, "danceability": 0.72, "tempo": 116, "loudness": -7}, "styles": ["house", "pop", "latin", "dance"], "anti": ["ambient", "acoustic"]},
-    {"name": "Party & keeping it awake", "emoji": "🎉", "target": {"energy": 0.85, "valence": 0.68, "danceability": 0.80, "tempo": 125, "loudness": -5}, "styles": ["dance", "house", "latin", "hiphop"], "anti": ["ambient", "acoustic"]},
+    {"name": "Party & keeping it awake", "emoji": "🎉", "target": {"energy": 0.85, "valence": 0.68, "danceability": 0.80, "tempo": 125, "loudness": -5}, "styles": ["dance", "house", "dnb", "latin", "hiphop"], "anti": ["ambient", "acoustic", "lofi", "soul"]},
     {"name": "Afters / sunrise set", "emoji": "🌇", "target": {"energy": 0.62, "valence": 0.35, "danceability": 0.75, "tempo": 122, "loudness": -8}, "styles": ["house", "dance"], "anti": ["acoustic", "rock"]},
-    {"name": "Gaming", "emoji": "🎮", "target": {"energy": 0.80, "valence": 0.40, "danceability": 0.58, "tempo": 132, "loudness": -6}, "styles": ["dance", "dnb", "rock"], "anti": ["acoustic"]},
+    {"name": "Gaming", "emoji": "🎮", "target": {"energy": 0.80, "valence": 0.40, "danceability": 0.58, "tempo": 132, "loudness": -6}, "styles": ["dance", "house", "dnb", "rock"], "anti": ["acoustic", "lofi"]},
     {"name": "Running / cardio", "emoji": "🏃", "target": {"energy": 0.85, "valence": 0.55, "danceability": 0.65, "tempo": 163, "loudness": -5}, "tol": {"tempo": 26}, "styles": ["dance", "dnb", "rock"], "anti": ["ambient", "acoustic"]},
-    {"name": "Late for a meeting", "emoji": "🏃‍♂️💼", "target": {"energy": 0.78, "valence": 0.50, "danceability": 0.65, "tempo": 142, "loudness": -6}, "tol": {"tempo": 22}, "styles": ["dance", "rock", "hiphop"], "anti": ["ambient"]},
+    {"name": "Late for a meeting", "emoji": "🏃‍♂️💼", "target": {"energy": 0.82, "valence": 0.50, "danceability": 0.65, "tempo": 152, "loudness": -6}, "tol": {"tempo": 16}, "styles": ["dance", "dnb", "rock", "hiphop"], "anti": ["ambient", "lofi", "acoustic", "soul"]},
     {"name": "Gym / lifting", "emoji": "💪", "target": {"energy": 0.90, "valence": 0.45, "danceability": 0.60, "tempo": 140, "loudness": -4}, "tol": {"tempo": 26}, "styles": ["hiphop", "rock", "dance"], "anti": ["ambient", "acoustic"]},
     {"name": "Rage / venting", "emoji": "😤", "target": {"energy": 0.95, "valence": 0.20, "danceability": 0.50, "tempo": 150, "loudness": -4}, "tol": {"tempo": 25}, "styles": ["rock", "dnb"], "anti": ["acoustic", "ambient", "soul"]},
 ]
@@ -38,6 +38,8 @@ def classify_style(f):
     sp = f.get("speechiness", 0.05)
     ac = f.get("acousticness", 0.2)
     ins = f.get("instrumentalness", 0.0)
+    if ins >= 0.35 and e < 0.5 and d >= 0.4 and 60 <= t <= 100:
+        return "lofi"
     if ins >= 0.5 and e < 0.55:
         return "ambient"
     if ac >= 0.6 and e < 0.55:
@@ -64,9 +66,9 @@ def _track_fit(f, theme):
     fit = math.exp(-z2 / 2)
     style = classify_style(f)
     if style in theme["styles"]:
-        fit = min(1.0, fit * 1.12)
+        fit = min(1.0, fit * 1.15)
     elif style in theme.get("anti", []):
-        fit *= 0.85
+        fit *= 0.80
     return fit
 
 

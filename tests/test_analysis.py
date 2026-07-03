@@ -94,10 +94,25 @@ RAP = {"energy": 0.70, "valence": 0.50, "danceability": 0.75, "tempo": 140, "lou
        "acousticness": 0.1, "instrumentalness": 0.0, "speechiness": 0.25}
 
 
+LOFI = {"energy": 0.30, "valence": 0.45, "danceability": 0.55, "tempo": 80, "loudness": -13,
+        "acousticness": 0.4, "instrumentalness": 0.7, "speechiness": 0.04}
+
+
 def test_classify_style():
     assert themes.classify_style(SLEEPY) == "acoustic"
     assert themes.classify_style(BANGER) == "dance"
     assert themes.classify_style(RAP) == "hiphop"
+    assert themes.classify_style(LOFI) == "lofi"
+
+
+def test_style_theme_rules():
+    # lo-fi fits coffee better than party; EDM banger fits party/gaming better than coffee
+    lofi_scores = {t["name"]: t["score"] for t in themes.theme_scores([LOFI] * 5)}
+    edm_scores = {t["name"]: t["score"] for t in themes.theme_scores([BANGER] * 5)}
+    assert lofi_scores["Brewing coffee"] > lofi_scores["Party & keeping it awake"]
+    assert lofi_scores["Brewing coffee"] > lofi_scores["Late for a meeting"]
+    assert edm_scores["Party & keeping it awake"] > edm_scores["Brewing coffee"]
+    assert edm_scores["Gaming"] > edm_scores["Brewing coffee"]
 
 
 def test_theme_scores_rank_sensibly():
